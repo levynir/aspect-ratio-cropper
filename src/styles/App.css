@@ -163,6 +163,44 @@ body {
   text-align: right;
 }
 
+.crop-info-exact {
+  color: #27ae60;
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+
+.crop-size-editable {
+  cursor: pointer;
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: #3498db;
+}
+
+.crop-size-editable:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.crop-size-input {
+  width: 60px;
+  padding: 0.125rem 0.25rem;
+  border: 1px solid #3498db;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  background-color: #fff;
+}
+
+.crop-size-input:focus {
+  outline: none;
+  border-color: #2980b9;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
 /* Crop Overlay */
 .crop-overlay {
   position: absolute;

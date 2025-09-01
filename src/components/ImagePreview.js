@@ -70,6 +70,8 @@ const ImagePreview = ({
         <CropInfo 
           cropArea={cropArea} 
           selectedRatio={selectedRatio}
+          onCropAreaChange={onCropAreaChange}
+          imageDimensions={imageData.dimensions}
         />
       )}
     </div>

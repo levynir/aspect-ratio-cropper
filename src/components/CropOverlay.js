@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { constrainCropArea } from '../utils/cropUtils';
+import { constrainCropArea, calculateExactResize } from '../utils/cropUtils';
 
 const CropOverlay = ({ 
   cropArea, 
@@ -93,89 +93,99 @@ const CropOverlay = ({
         previewDimensions.height - previewCropArea.height,
         initialState.cropY + deltaY
       ));
+    } else if (isResizing && aspectRatio) {
+      // Use exact resize calculation for aspect ratio locked resizing
+      const initialImageArea = previewToImage({
+        x: initialState.cropX,
+        y: initialState.cropY,
+        width: initialState.cropWidth,
+        height: initialState.cropHeight
+      });
+      
+      // Convert deltas to image space
+      const imageDeltaX = deltaX / scale;
+      const imageDeltaY = deltaY / scale;
+      
+      // Calculate exact resize in image coordinates
+      const newImageArea = calculateExactResize(
+        resizeHandle,
+        initialImageArea,
+        imageDeltaX,
+        imageDeltaY,
+        aspectRatio
+      );
+      
+      // Convert back to preview coordinates
+      newPreviewArea = imageToPreview(newImageArea);
+      
+      // Ensure we don't exceed preview bounds
+      if (newPreviewArea.x < 0 || newPreviewArea.y < 0 || 
+          newPreviewArea.x + newPreviewArea.width > previewDimensions.width ||
+          newPreviewArea.y + newPreviewArea.height > previewDimensions.height) {
+        // If we exceed bounds, use the constrained version
+        const constrainedImageArea = constrainCropArea(
+          newImageArea,
+          imageDimensions.width,
+          imageDimensions.height,
+          aspectRatio
+        );
+        newPreviewArea = imageToPreview(constrainedImageArea);
+      }
     } else if (isResizing) {
-      // Handle resizing based on which corner is being dragged
+      // Free resize (no aspect ratio selected) - use old logic
       const minSize = 20;
       
       switch (resizeHandle) {
-        case 'nw': // Top-left corner
+        case 'nw':
           newPreviewArea.width = Math.max(minSize, initialState.cropWidth - deltaX);
-          newPreviewArea.height = aspectRatio 
-            ? newPreviewArea.width / (aspectRatio.width / aspectRatio.height)
-            : Math.max(minSize, initialState.cropHeight - deltaY);
+          newPreviewArea.height = Math.max(minSize, initialState.cropHeight - deltaY);
           newPreviewArea.x = initialState.cropX + initialState.cropWidth - newPreviewArea.width;
           newPreviewArea.y = initialState.cropY + initialState.cropHeight - newPreviewArea.height;
           break;
-          
-        case 'ne': // Top-right corner
+        case 'ne':
           newPreviewArea.width = Math.max(minSize, initialState.cropWidth + deltaX);
-          newPreviewArea.height = aspectRatio
-            ? newPreviewArea.width / (aspectRatio.width / aspectRatio.height)
-            : Math.max(minSize, initialState.cropHeight - deltaY);
+          newPreviewArea.height = Math.max(minSize, initialState.cropHeight - deltaY);
           newPreviewArea.x = initialState.cropX;
           newPreviewArea.y = initialState.cropY + initialState.cropHeight - newPreviewArea.height;
           break;
-          
-        case 'sw': // Bottom-left corner
+        case 'sw':
           newPreviewArea.width = Math.max(minSize, initialState.cropWidth - deltaX);
-          newPreviewArea.height = aspectRatio
-            ? newPreviewArea.width / (aspectRatio.width / aspectRatio.height)
-            : Math.max(minSize, initialState.cropHeight + deltaY);
+          newPreviewArea.height = Math.max(minSize, initialState.cropHeight + deltaY);
           newPreviewArea.x = initialState.cropX + initialState.cropWidth - newPreviewArea.width;
           newPreviewArea.y = initialState.cropY;
           break;
-          
-        case 'se': // Bottom-right corner
+        case 'se':
           newPreviewArea.width = Math.max(minSize, initialState.cropWidth + deltaX);
-          newPreviewArea.height = aspectRatio
-            ? newPreviewArea.width / (aspectRatio.width / aspectRatio.height)
-            : Math.max(minSize, initialState.cropHeight + deltaY);
+          newPreviewArea.height = Math.max(minSize, initialState.cropHeight + deltaY);
           newPreviewArea.x = initialState.cropX;
           newPreviewArea.y = initialState.cropY;
           break;
-      }
-
-      // Constrain to bounds after resizing
-      if (newPreviewArea.x < 0) {
-        newPreviewArea.width += newPreviewArea.x;
-        newPreviewArea.x = 0;
-        if (aspectRatio) {
-          newPreviewArea.height = newPreviewArea.width / (aspectRatio.width / aspectRatio.height);
-        }
-      }
-      if (newPreviewArea.y < 0) {
-        newPreviewArea.height += newPreviewArea.y;
-        newPreviewArea.y = 0;
-        if (aspectRatio) {
-          newPreviewArea.width = newPreviewArea.height * (aspectRatio.width / aspectRatio.height);
-        }
-      }
-      if (newPreviewArea.x + newPreviewArea.width > previewDimensions.width) {
-        newPreviewArea.width = previewDimensions.width - newPreviewArea.x;
-        if (aspectRatio) {
-          newPreviewArea.height = newPreviewArea.width / (aspectRatio.width / aspectRatio.height);
-        }
-      }
-      if (newPreviewArea.y + newPreviewArea.height > previewDimensions.height) {
-        newPreviewArea.height = previewDimensions.height - newPreviewArea.y;
-        if (aspectRatio) {
-          newPreviewArea.width = newPreviewArea.height * (aspectRatio.width / aspectRatio.height);
-        }
       }
       
-      // Ensure minimum size after constraints
-      if (newPreviewArea.width < minSize || newPreviewArea.height < minSize) {
-        return;
-      }
+      // Basic bounds checking for free resize
+      newPreviewArea.x = Math.max(0, newPreviewArea.x);
+      newPreviewArea.y = Math.max(0, newPreviewArea.y);
+      newPreviewArea.width = Math.min(newPreviewArea.width, previewDimensions.width - newPreviewArea.x);
+      newPreviewArea.height = Math.min(newPreviewArea.height, previewDimensions.height - newPreviewArea.y);
     }
 
-    // Convert back to image coordinates
+    // Convert back to image coordinates and apply final constraints
     const newImageArea = previewToImage(newPreviewArea);
-    const constrainedImageArea = aspectRatio 
-      ? constrainCropArea(newImageArea, imageDimensions.width, imageDimensions.height, aspectRatio)
-      : newImageArea;
+    
+    // For aspect ratio resizing, we already handled constraints above
+    // For dragging or free resize, apply constraints
+    let finalImageArea;
+    if (isDragging && aspectRatio) {
+      finalImageArea = constrainCropArea(newImageArea, imageDimensions.width, imageDimensions.height, aspectRatio);
+    } else if (isResizing && aspectRatio) {
+      // Already constrained in the resize logic above
+      finalImageArea = newImageArea;
+    } else {
+      // Free resize or no aspect ratio
+      finalImageArea = newImageArea;
+    }
 
-    onCropAreaChange(constrainedImageArea);
+    onCropAreaChange(finalImageArea);
   };
 
   const handleEnd = () => {
