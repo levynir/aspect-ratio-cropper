@@ -33,13 +33,22 @@ const CropOverlay = ({
 
   const previewCropArea = imageToPreview(cropArea);
 
-  const handleMouseDown = (e, handle = null) => {
+  // Get coordinates from mouse or touch event
+  const getEventCoordinates = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+    }
+    return { clientX: e.clientX, clientY: e.clientY };
+  };
+
+  const handleStart = (e, handle = null) => {
     e.preventDefault();
     e.stopPropagation();
     
     const containerRect = overlayRef.current.parentElement.getBoundingClientRect();
-    const startX = e.clientX;
-    const startY = e.clientY;
+    const coords = getEventCoordinates(e);
+    const startX = coords.clientX;
+    const startY = coords.clientY;
 
     // Store initial state
     setInitialState({
@@ -61,12 +70,16 @@ const CropOverlay = ({
     }
   };
 
-  const handleMouseMove = (e) => {
+  // Keep old name for compatibility
+  const handleMouseDown = handleStart;
+
+  const handleMove = (e) => {
     if (!isDragging && !isResizing) return;
     if (!initialState.mouseX) return;
 
-    const deltaX = e.clientX - initialState.mouseX;
-    const deltaY = e.clientY - initialState.mouseY;
+    const coords = getEventCoordinates(e);
+    const deltaX = coords.clientX - initialState.mouseX;
+    const deltaY = coords.clientY - initialState.mouseY;
 
     let newPreviewArea = { ...previewCropArea };
 
@@ -165,20 +178,30 @@ const CropOverlay = ({
     onCropAreaChange(constrainedImageArea);
   };
 
-  const handleMouseUp = () => {
+  const handleEnd = () => {
     setIsDragging(false);
     setIsResizing(false);
     setResizeHandle(null);
     setInitialState({});
   };
 
+  // Keep old names for compatibility
+  const handleMouseMove = handleMove;
+  const handleMouseUp = handleEnd;
+
   useEffect(() => {
     if (isDragging || isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      // Add both mouse and touch event listeners
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('mouseup', handleEnd);
+      document.addEventListener('touchmove', handleMove, { passive: false });
+      document.addEventListener('touchend', handleEnd);
+      
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', handleMove);
+        document.removeEventListener('mouseup', handleEnd);
+        document.removeEventListener('touchmove', handleMove);
+        document.removeEventListener('touchend', handleEnd);
       };
     }
   }, [isDragging, isResizing, initialState]);
@@ -193,26 +216,31 @@ const CropOverlay = ({
         width: previewCropArea.width,
         height: previewCropArea.height
       }}
-      onMouseDown={handleMouseDown}
+      onMouseDown={handleStart}
+      onTouchStart={handleStart}
     >
       <div className="crop-overlay-inner" />
       
       {/* Resize handles */}
       <div
         className="resize-handle nw"
-        onMouseDown={(e) => handleMouseDown(e, 'nw')}
+        onMouseDown={(e) => handleStart(e, 'nw')}
+        onTouchStart={(e) => handleStart(e, 'nw')}
       />
       <div
         className="resize-handle ne"
-        onMouseDown={(e) => handleMouseDown(e, 'ne')}
+        onMouseDown={(e) => handleStart(e, 'ne')}
+        onTouchStart={(e) => handleStart(e, 'ne')}
       />
       <div
         className="resize-handle sw"
-        onMouseDown={(e) => handleMouseDown(e, 'sw')}
+        onMouseDown={(e) => handleStart(e, 'sw')}
+        onTouchStart={(e) => handleStart(e, 'sw')}
       />
       <div
         className="resize-handle se"
-        onMouseDown={(e) => handleMouseDown(e, 'se')}
+        onMouseDown={(e) => handleStart(e, 'se')}
+        onTouchStart={(e) => handleStart(e, 'se')}
       />
     </div>
   );

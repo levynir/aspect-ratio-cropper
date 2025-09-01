@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import CropOverlay from './CropOverlay';
+import CropInfo from './CropInfo';
 import { formatAspectRatio, calculatePreviewDimensions } from '../utils/imageUtils';
 
 const ImagePreview = ({ 
@@ -64,6 +65,13 @@ const ImagePreview = ({
           />
         )}
       </div>
+
+      {cropArea && (
+        <CropInfo 
+          cropArea={cropArea} 
+          selectedRatio={selectedRatio}
+        />
+      )}
     </div>
   );
 };

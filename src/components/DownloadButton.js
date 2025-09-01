@@ -79,6 +79,7 @@ const DownloadButton = ({ imageData, cropArea, originalFileName, selectedRatio, 
 
   return (
     <div className="download-section">
+      <h3>Export Image</h3>
       <button 
         className="crop-button"
         onClick={handleCropAndDownload}

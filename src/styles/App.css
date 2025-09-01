@@ -117,6 +117,52 @@ body {
   height: auto;
 }
 
+/* Crop Info */
+.crop-info {
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.crop-info h4 {
+  color: #2c3e50;
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.crop-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.crop-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.crop-info-label {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.crop-info-value {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
 /* Crop Overlay */
 .crop-overlay {
   position: absolute;
@@ -124,6 +170,7 @@ body {
   background-color: rgba(52, 152, 219, 0.1);
   cursor: move;
   user-select: none;
+  touch-action: none; /* Prevent scrolling on touch devices */
 }
 
 .crop-overlay-inner {
@@ -142,6 +189,7 @@ body {
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  touch-action: none; /* Prevent scrolling on touch devices */
 }
 
 .resize-handle:hover {
@@ -179,7 +227,7 @@ body {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 2rem;
-  align-items: start;
+  align-items: stretch; /* Make both sections same height */
 }
 
 /* Aspect Ratio Selector */
@@ -196,37 +244,57 @@ body {
   font-size: 1.3rem;
 }
 
-.current-ratio {
-  margin-bottom: 1rem;
+/* Dropdown Styles */
+.dropdown-container {
+  position: relative;
+  width: 100%;
 }
 
-.predefined-ratios {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.ratio-button {
-  padding: 0.75rem 1rem;
+.aspect-ratio-dropdown {
+  width: 100%;
+  padding: 0.875rem 3rem 0.875rem 1rem;
   border: 2px solid #e0e0e0;
+  border-radius: 8px;
   background-color: #fff;
-  color: #666;
-  border-radius: 6px;
+  color: #333;
+  font-size: 1rem;
+  font-family: inherit;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
   transition: all 0.3s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
-.ratio-button:hover {
+.aspect-ratio-dropdown:hover {
   border-color: #3498db;
-  color: #3498db;
 }
 
-.ratio-button.active {
+.aspect-ratio-dropdown:focus {
+  outline: none;
   border-color: #3498db;
-  background-color: #3498db;
-  color: white;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.dropdown-arrow {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #666;
+  transition: transform 0.3s ease;
+}
+
+.aspect-ratio-dropdown:focus + .dropdown-arrow {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Option styling (limited browser support) */
+.aspect-ratio-dropdown option {
+  padding: 0.5rem;
+  background-color: #fff;
+  color: #333;
 }
 
 /* Download Section */
@@ -236,6 +304,17 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%; /* Match height of aspect ratio selector */
+}
+
+.download-section h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  margin-top: 0; /* Remove default top margin */
 }
 
 .crop-button {
@@ -279,17 +358,13 @@ body {
     gap: 1rem;
   }
   
-  .predefined-ratios {
-    justify-content: center;
-  }
-  
-  .ratio-button {
-    font-size: 0.8rem;
-    padding: 0.6rem 0.8rem;
-  }
-  
   .image-info {
     padding: 1rem;
+  }
+  
+  .crop-info {
+    max-width: 100%;
+    margin-top: 1rem;
   }
 }
 
@@ -308,12 +383,30 @@ body {
     padding: 0.875rem 1.5rem;
   }
   
-  .predefined-ratios {
-    flex-direction: column;
+  /* Make resize handles bigger on mobile for better touch interaction */
+  .resize-handle {
+    width: 20px;
+    height: 20px;
+    border: 4px solid #fff;
   }
   
-  .ratio-button {
-    width: 100%;
-    justify-content: center;
+  .resize-handle.nw {
+    top: -12px;
+    left: -12px;
+  }
+  
+  .resize-handle.ne {
+    top: -12px;
+    right: -12px;
+  }
+  
+  .resize-handle.sw {
+    bottom: -12px;
+    left: -12px;
+  }
+  
+  .resize-handle.se {
+    bottom: -12px;
+    right: -12px;
   }
 }
