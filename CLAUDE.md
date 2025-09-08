@@ -16,7 +16,7 @@ npm install
 npm start
 
 # Build for production
-npm build
+npm run build
 
 # Run linting
 npm run lint
@@ -33,11 +33,12 @@ npm test
 - **ImagePreview.js**: Image display with metadata and crop overlay integration
 - **AspectRatioSelector.js**: Predefined ratio selection (1:1, 4:3, 16:9, etc.)
 - **CropOverlay.js**: Interactive crop rectangle with drag/resize functionality
+- **CropInfo.js**: Displays current crop dimensions and coordinates for debugging/feedback
 - **DownloadButton.js**: Crop processing and file download using Canvas API
 
 ### Utility Functions
-- **imageUtils.js**: Image loading, aspect ratio calculations, preview scaling
-- **cropUtils.js**: Canvas-based cropping, coordinate transformations, area constraints
+- **imageUtils.js**: Image loading, aspect ratio calculations, preview scaling, GCD calculations
+- **cropUtils.js**: Canvas-based cropping, coordinate transformations, area constraints, exact resize calculations
 
 ### Key Features
 - Client-side only processing (no backend required)
@@ -59,3 +60,10 @@ The app uses two coordinate systems:
 - **Image coordinates**: Original pixel dimensions for processing
 - **Preview coordinates**: Scaled dimensions for display
 Utilities handle conversion between these systems to ensure accurate cropping.
+
+### Build System
+- **Webpack 5** with Babel for React JSX transpilation
+- **Development server** on port 3000 with hot reload
+- **ESLint** for code quality (React plugin included)
+- **Jest** configured for testing (no tests currently implemented)
+- CSS loader for styling support
