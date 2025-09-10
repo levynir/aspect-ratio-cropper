@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A React web application for cropping images with aspect ratio selection",
   "main": "src/index.js",
+  "license": "MIT",
   "scripts": {
     "start": "webpack serve --mode development --open",
     "build": "webpack --mode production",
