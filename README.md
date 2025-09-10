@@ -16,7 +16,11 @@ This tool was created to solve the common problem of cropping images to specific
 - **Real-time feedback**: Live crop dimensions and coordinates
 - **Responsive design**: Works on desktop and mobile
 
+## Cloud Run
+You can use this application freely on Vercel: https://aspect-ratio-cropper.vercel.app/
+
 ## Installation
+If you prefer a local installation and know what git and npm are, you can grab a local copy, like so:
 
 ```bash
 # Clone the repository
