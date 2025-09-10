@@ -24,7 +24,7 @@ If you prefer a local installation and know what git and npm are, you can grab a
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/levynir/aspect-ratio-cropper.git
 cd aspect-ratio-cropper
 
 # Install dependencies
