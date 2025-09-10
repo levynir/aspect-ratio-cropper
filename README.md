@@ -89,7 +89,7 @@ Utility modules handle image processing (`imageUtils.js`) and crop calculations 
 - Preserves original image quality during cropping operations
 - No backend required - entirely client-side application
 
-## Disclaimer
+## Vibe-Coding Disclaimer
 
 This project was rapidly prototyped with Claude AI assistance and may contain bugs or edge cases that haven't been thoroughly tested. While functional for most use cases, please test thoroughly with your specific requirements before relying on it for critical applications.
 
